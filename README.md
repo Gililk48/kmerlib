@@ -1,6 +1,6 @@
 # kmerlib
 
-**kmerlib** is a lightweight Python toolkit for building and querying *k*-mer indices on large DNA data sets (FASTA genomes or FASTQ reads).  It is designed for laptops as well as clusters.
+**kmerlib** is a lightweight Python toolkit for building and querying *k*-mer indices on large DNA data sets (FASTA genomes or FASTQ reads).
 
 ```
 📂 kmerlib/
