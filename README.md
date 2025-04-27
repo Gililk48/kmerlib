@@ -9,7 +9,8 @@
  ├── collect.py       • triple collector  (key, read_id, offset)
  ├── index.py         • chunked binary index writer  (.index.bin)
  ├── query.py         • memory‑mapped API  (K30Index)
- └── tests/           • end‑to‑end pytest pipelines (M1…M4)
+📂 tests/
+└── tests/           • end‑to‑end pytest pipelines (M1…M4)
 ```
 
 ---
