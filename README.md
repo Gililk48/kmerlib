@@ -13,7 +13,7 @@
  ├── test_filter.py
  ├── test_index.py
  ├── test_kmer.py
- ├── test_query.py           • end‑to‑end pytest pipelines (M1…M4)
+ ├── test_query.py           • pytest checks core functionality
 ```
 
 ---
