@@ -1,6 +1,6 @@
 # kmerlib
 
-**kmerlib** is a lightweight Python toolkit for building and querying *k*-mer indices on large DNA data sets (FASTA genomes or FASTQ reads).  It is designed for laptops as well as clusters — the default pass‑1 counter opens **a single file handle at a time**, so you will never trigger the infamous “too many open files” error on macOS.
+**kmerlib** is a lightweight Python toolkit for building and querying *k*-mer indices on large DNA data sets (FASTA genomes or FASTQ reads).  It is designed for laptops as well as clusters.
 
 ```
 📂 kmerlib/
