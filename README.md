@@ -108,9 +108,3 @@ All binaries are little‑endian and **memory‑friendly**: they can be `mmap`�
 
 If you use *kmerlib* in a publication, please cite our spacing‑fingerprint preprint (URL forthcoming).
 
----
-
-## License
-
-MIT — © 2025 Your Lab.  See `LICENSE` for details.
-
