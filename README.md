@@ -13,7 +13,7 @@
  ├── test_filter.py
  ├── test_index.py
  ├── test_kmer.py
- ├── test_query.py           • pytest checks core functionality
+ ├── test_query.py           • pytest checks some functionality (more to come)...
 ```
 
 ---
