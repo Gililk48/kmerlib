@@ -10,10 +10,10 @@
  ├── index.py         • chunked binary index writer  (.index.bin)
  ├── query.py         • memory‑mapped API  (K30Index)
 📂 tests/
-└── test_filter.py
-└── test_index.py
-└── test_kmer.py
-└── test_query.py           • end‑to‑end pytest pipelines (M1…M4)
+ ├── test_filter.py
+ ├── test_index.py
+ ├── test_kmer.py
+ ├── test_query.py           • end‑to‑end pytest pipelines (M1…M4)
 ```
 
 ---
