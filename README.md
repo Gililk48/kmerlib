@@ -2,113 +2,95 @@
 
 **kmerlib** is a lightweight Python toolkit for building and querying *k*-mer indices on large DNA data sets (FASTA genomes or FASTQ reads).
 
-```
-📂 kmerlib/
- ├── kmerlib.py       • streaming pass‑1 counter
- ├── filter.py        • keep‑set bitmask (≥X copies) builder
- ├── collect.py       • triple collector  (key, read_id, offset)
- ├── index.py         • chunked binary index writer  (.index.bin)
- ├── query.py         • memory‑mapped API  (K30Index)
-📂 tests/
- ├── test_filter.py
- ├── test_index.py
- ├── test_kmer.py
- ├── test_query.py           • pytest checks some functionality (more to come)...
-```
+Overview
+index.py is a Python script designed to process FASTQ (reads) or FASTA (genome) files by extracting k-mers, building an index of their positions, and saving occurrence statistics to a CSV file. The script filters k-mers that appear at least twice (for FASTA) or at least twice in at least two reads (for FASTQ), builds an index mapping k-mers to their positions, and saves the index for later querying. This script is useful for analyzing k-mer distributions and locations in sequencing data, such as in microbiome or genomic studies.
+Key Features
 
----
+Extracts k-mers of a specified length (default: 30) from FASTQ or FASTA files.
+Filters k-mers based on occurrence criteria.
+Builds an index mapping k-mers to their positions (read/sequence ID and offset).
+Saves the index and associated IDs to disk for later querying.
+Saves k-mer occurrence statistics to a CSV file.
 
-## Key features
+Requirements
+To run index.py, you need the following Python packages installed:
 
-| stage                    | purpose                                                                              | key CLI / API                                                |
-| ------------------------ | ------------------------------------------------------------------------------------ | ------------------------------------------------------------ |
-| **Pass‑1 counter**       | streams FASTA/FASTQ, rolls canonical 2‑bit hashes, dumps per‑bucket temporary counts | `build_pass1(in_path, is_reads, k, bucket_bits, out_prefix)` |
-| **Keep‑set filter**      | selects *k*-mers that appear ≥ *min\_total* times; saves a `.keep.u64` bitmask       | `build_keep_set(prefix, min_total=2)`                        |
-| **Occurrence collector** | writes `.occ.tmp` triples `(key, read_id, offset)` plus `.seqmap.bin`                | `collect_occurrences(prefix)`                                |
-| **Chunked indexer**      | merges triples into a memory‑mappable `.index.bin` (header + tables)                 | `build_index(prefix, chunk_mb=16)`                           |
-| **Query API**            | constant‑time look‑ups: `present`, `count`, `positions`, `count_many`                | `K30Index(map_path)`                                         |
+numpy
+tqdm
 
-All heavy lifting is done with plain NumPy and memory‑view slices—no C extensions required.
+You can install these dependencies using pip:
+pip install numpy tqdm
 
----
+Additionally, ensure you have Python 3.6 or later installed.
+Usage
+Command-Line Arguments
+index.py accepts the following command-line arguments:
 
-## Installation
+input_file (required): Path to the input FASTQ or FASTA file.
+--type (required): Type of input file. Choices are:
+reads: For FASTQ files (e.g., sequencing reads).
+genome: For FASTA files (e.g., genome sequences).
 
-```bash
-# clone and install in editable mode
-$ git clone https://github.com/you/kmerlib.git
-$ cd kmerlib && pip install -e .[dev]
-```
 
-*Requires Python ≥3.8 and NumPy.  The tests depend on **`pytest`**.*
+Example usage:
 
----
+python3 index.py <input_file> --type <reads|genome>
 
-## Quick‑start
+Examples
+Example 1: Process a FASTQ File (Reads)
+To process a FASTQ file containing sequencing reads:
+python3 index.py /path/to/reads.fastq --type reads
 
-### 1  Count & filter 30‑mers in a genome
+This will:
 
-```python
-from pathlib import Path
-from kmerlib import kmerlib as kl
+Filter k-mers that appear at least twice in at least two reads.
+Build an index mapping k-mers to their positions in the reads.
+Save the filtered k-mers to filtered_kmers.txt.
+Save the index to index_fastq.pkl and read IDs to ids_fastq.pkl.
+Save k-mer stats to filtered_kmer_stats.csv.
 
-prefix = Path("lambda_k30")  # output prefix
-kl.build_pass1("lambda.fa", is_reads=False, k=30, bucket_bits=14, out_prefix=prefix)
-kl.build_keep_set(prefix)                      # default min_total=2
-kl.collect_occurrences(prefix)
-kl.build_index(prefix)
-```
+Example 2: Process a FASTA File (Genome)
+To process a FASTA file containing a genome sequence:
+python3 index.py /path/to/genome.fasta --type genome
 
-### 2  Query the index
+This will:
 
-```python
-from kmerlib.query import K30Index
-idx = K30Index("lambda_k30.index.bin")
+Filter k-mers that appear at least twice in the concatenated sequence.
+Build an index mapping k-mers to their positions in the sequences.
+Save the filtered k-mers to filtered_kmers.txt.
+Save the index to index_fasta.pkl and sequence IDs to ids_fasta.pkl.
+Save k-mer stats to filtered_kmer_stats.csv.
 
-print(idx.count("ACGT" * 7))          # how many times does this 30‑mer occur?
-print(idx.positions("ACGT" * 7)[:5]) # first five (contig, offset) pairs
-```
+Output Files
+The script generates the following output files:
 
-### 3  Run the test suite
+filtered_kmers.txt: A text file listing all filtered k-mers (one per line).
+index_{fastq|fasta}.pkl: A pickled file containing the index (a dictionary mapping k-mers to arrays of positions).
+ids_{fastq|fasta}.pkl: A pickled file containing the list of read or sequence IDs corresponding to the indices in the index.
+filtered_kmer_stats.csv: A CSV file with k-mer occurrence statistics, with columns:
+kmer: The k-mer sequence.
+count: Total number of occurrences of the k-mer.
+read_id: ID of the read or sequence where the k-mer occurs.
+offset: Position (base pair offset) of the k-mer in the read/sequence.
 
-```bash
-$ pytest -q kmerlib/tests
-```
 
-The tests shipped with *kmerlib* exercise every public stage:
 
-- pass‑1 counting on a small FASTA and FASTQ toy data set,
-- keep‑set filtering and occurrence collection,
-- index construction and memory‑mapped queries (counts & positions),
-- round‑trip integrity: querying a k‑mer found in the input always returns the original coordinates.
+Querying the Saved Index
+The saved index (index_{fastq|fasta}.pkl) and IDs (ids_{fastq|fasta}.pkl) can be queried using the query_kmer_index.py script to find the abundance (number of occurrences) and locations of a specific k-mer.
+Example: Querying a K-mer
+First, run index.py to generate the index:
+python3 index.py /path/to/reads.fastq --type reads
 
-These unit tests make no external network calls and finish in <10 seconds on a laptop.  Feel free to add your own cases under `tests/`.
+Then, use query_kmer_index.py to query a k-mer:
+python3 query_kmer_index.py ACGTACGTACGTACGTACGTACGTACGTACGT --type reads
 
----
+This will output the k-mer’s abundance and locations (read IDs and offsets) based on the saved index.
+Notes
 
-## File formats
+K-mer Length: The default k-mer length is 30. To change this, you’d need to modify the k variable in the script.
+File Format: The index and IDs are saved using pickle, which is specific to Python. Ensure compatibility with the same Python version when loading the files.
+Performance: For large FASTQ or FASTA files, the script may take significant time and memory. The tqdm progress bar provides feedback on the processing status.
 
-| suffix          | description                                                            |
-| --------------- | ---------------------------------------------------------------------- |
-| `.bucket_*.u64` | raw pass‑1 64‑bit counters (one file per bucket)                       |
-| `.keep.u64`     | bitmask of surviving keys (1 bit / key)                                |
-| `.occ.tmp`      | *uint64* triples `(key, read_id, offset)`                              |
-| `.seqmap.bin`   | mapping of `read_id → (file_offset, length)`                           |
-| `.index.bin`    | final chunked index: header • key array • offset table • id+pos arrays |
-
-All binaries are little‑endian and **memory‑friendly**: they can be `mmap`‑opened and sliced without loading the whole file.
-
----
-
-## Performance tips
-
-- Tune `bucket_bits` so that each pass‑1 bucket fits into CPU cache.
-- Use `chunk_mb` to limit RAM during the merge stage.
-- `count_many()` accepts a Python list/NumPy array of hashes for vectorised look‑ups (>10× faster than looping in Python).
-
----
-
-## Citing
-
-If you use *kmerlib* in a publication, please cite our spacing‑fingerprint preprint (URL forthcoming).
+License
+This script is provided as-is for academic and research purposes. There is no warranty or guarantee of functionality. Use at your own risk.
 
