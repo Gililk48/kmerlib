@@ -1,9 +1,6 @@
-# kmerlib
-
-**kmerlib** is a lightweight Python toolkit for building and querying *k*-mer indices on large DNA data sets (FASTA genomes or FASTQ reads).
-
+Index Script README
 Overview
-index.py is a Python script designed to process FASTQ (reads) or FASTA (genome) files by extracting k-mers, building an index of their positions, and saving occurrence statistics to a CSV file. The script filters k-mers that appear at least twice (for FASTA) or at least twice in at least two reads (for FASTQ), builds an index mapping k-mers to their positions, and saves the index for later querying. This script is useful for analyzing k-mer distributions and locations in sequencing data, such as in microbiome or genomic studies.
+index.py is a Python script that processes FASTQ (reads) or FASTA (genome) files by extracting k-mers, building an index of their positions, and saving occurrence statistics to a CSV file. It filters k-mers that appear at least twice (for FASTA) or at least twice in at least two reads (for FASTQ), builds an index mapping k-mers to their positions, and saves the index for later querying. This script is useful for analyzing k-mer distributions and locations in sequencing data, such as in microbiome or genomic studies.
 Key Features
 
 Extracts k-mers of a specified length (default: 30) from FASTQ or FASTA files.
@@ -18,7 +15,7 @@ To run index.py, you need the following Python packages installed:
 numpy
 tqdm
 
-You can install these dependencies using pip:
+Install these dependencies using pip:
 pip install numpy tqdm
 
 Additionally, ensure you have Python 3.6 or later installed.
@@ -32,8 +29,8 @@ reads: For FASTQ files (e.g., sequencing reads).
 genome: For FASTA files (e.g., genome sequences).
 
 
-Example usage:
 
+Example usage:
 python3 index.py <input_file> --type <reads|genome>
 
 Examples
@@ -84,13 +81,12 @@ python3 index.py /path/to/reads.fastq --type reads
 Then, use query_kmer_index.py to query a k-mer:
 python3 query_kmer_index.py ACGTACGTACGTACGTACGTACGTACGTACGT --type reads
 
-This will output the k-mer’s abundance and locations (read IDs and offsets) based on the saved index.
+This will output the k-mer's abundance and locations (read IDs and offsets) based on the saved index.
 Notes
 
-K-mer Length: The default k-mer length is 30. To change this, you’d need to modify the k variable in the script.
+K-mer Length: The default k-mer length is 30. To change this, modify the k variable in the script.
 File Format: The index and IDs are saved using pickle, which is specific to Python. Ensure compatibility with the same Python version when loading the files.
 Performance: For large FASTQ or FASTA files, the script may take significant time and memory. The tqdm progress bar provides feedback on the processing status.
 
 License
 This script is provided as-is for academic and research purposes. There is no warranty or guarantee of functionality. Use at your own risk.
-
