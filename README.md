@@ -56,12 +56,12 @@ python index.py ref.fa --type genome
 
 ## 📂 Output
 
-| File | When produced | What it contains |
-|------|---------------|------------------|
-| `filtered_kmers.txt` | Always | One retained 30‑mer per line. |
-| `index_fastq.pkl` / `index_fasta.pkl` | Always | `dict[kmer] -> List[(id, offset)]` pickle. |
-| `ids_fastq.pkl` / `ids_fasta.pkl` | Always | List of read / sequence identifiers. |
-| `filtered_kmer_stats.csv` | Always | CSV with columns: `kmer,count,id,offset`. |
+| File | What it contains |
+|------|------------------|
+| `filtered_kmers.txt` | One retained 30‑mer per line. |
+| `index_fastq.pkl` / `index_fasta.pkl` | `dict[kmer] -> List[(id, offset)]` pickle. |
+| `ids_fastq.pkl` / `ids_fasta.pkl` | List of read / sequence identifiers. |
+| `filtered_kmer_stats.csv` | CSV with columns: `kmer,count,id,offset`. |
 
 ---
 
