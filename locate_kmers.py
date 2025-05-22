@@ -6,16 +6,36 @@ import shutil
 
 
 def filter_kmers(kmer_file):
-    """Yield kmers that occur at least twice in at least two reads."""
+    """Yield kmers to locate.
+
+    If ``count`` and ``reads`` columns are present they are used to filter for
+    kmers occurring at least twice in at least two reads. Otherwise all kmers
+    in the file are yielded.
+    """
     with open(kmer_file, newline='') as fh:
         reader = csv.DictReader(fh)
+
+        # Determine if count/read based filtering can be applied
+        use_filters = reader.fieldnames and {
+            'count', 'reads'
+        }.issubset(reader.fieldnames)
+
         for row in reader:
             kmer = row.get('kmer')
+            if not kmer:
+                continue
+
+            if not use_filters:
+                yield kmer
+                continue
+
             try:
                 count = int(row.get('count', 0))
                 reads = int(row.get('reads', 0))
-            except ValueError:
+            except (ValueError, TypeError):
+                # skip malformed rows when filtering
                 continue
+
             if count >= 2 and reads >= 2:
                 yield kmer
 
@@ -36,7 +56,10 @@ def save_locations(kmer, locations, out_dir):
 
 def main():
     parser = argparse.ArgumentParser(description='Locate kmers in reads using seqkit.')
-    parser.add_argument('kmers', help='CSV file with kmer, count and reads columns')
+    parser.add_argument(
+        'kmers',
+        help='CSV file containing a "kmer" column and optional "count" and "reads" columns'
+    )
     parser.add_argument('reads', help='Input FASTA/FASTQ file containing reads')
     parser.add_argument('-o', '--outdir', default='kmer_locations', help='Output directory')
     args = parser.parse_args()

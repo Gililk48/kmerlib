@@ -27,8 +27,8 @@ python extract_kmers.py reads.fastq -k 30 -o kmers.csv
 
 ## Locating k-mers in reads
 
-The `locate_kmers.py` script searches a FASTA/FASTQ file for k-mers listed in a CSV file. The CSV should contain `kmer`, `count` and `reads` columns such as the output of `extract_kmers.py`.
-Only k-mers occurring at least twice and found in at least two reads are processed.
+The `locate_kmers.py` script searches a FASTA/FASTQ file for k-mers listed in a CSV file. The file must contain a `kmer` column and may optionally include `count` and `reads` columns produced by `extract_kmers.py`.
+When these optional columns are present, only k-mers occurring at least twice and found in at least two reads are processed. Otherwise, all listed k-mers are searched.
 For each qualifying k-mer a TSV file containing the locations is written to the output directory (default `kmer_locations`).
 
 ```
