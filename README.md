@@ -8,16 +8,21 @@ FASTA or FASTQ files and locating them within reads using `seqkit`.
 - [seqkit](https://bioinf.shenwei.me/seqkit/) must be installed and available
   on your `$PATH`.
 - Python 3
+- [tqdm](https://tqdm.github.io/) for progress bars
 
 ## Usage
 
 ```
-python extract_kmers.py <input.fasta|input.fastq> [-k KMER_SIZE] [-o OUTPUT_CSV]
+python extract_kmers.py <input.fasta|input.fastq> [-k KMER_SIZE] [-o OUTPUT_CSV] [-b BATCH_SIZE]
 ```
 
 The script will output a CSV file (default `kmers.csv`) containing the k-mer and
 its total count. When processing FASTQ files the CSV also includes the number of
 reads in which each k-mer appears.
+
+The input format is detected automatically. Use `--batch-size` to adjust
+the number of k-mers processed at once (default: 1,000,000) when memory
+usage becomes an issue.
 
 ```
 # example
