@@ -3,6 +3,8 @@ import csv
 import os
 import subprocess
 import shutil
+from tqdm import tqdm
+import time
 
 
 def filter_kmers(kmer_file):
@@ -20,7 +22,14 @@ def filter_kmers(kmer_file):
             'count', 'reads'
         }.issubset(reader.fieldnames)
 
-        for row in reader:
+        # Count total lines for progress bar
+        fh.seek(0)
+        next(fh)  # Skip header
+        total_lines = sum(1 for _ in fh)
+        fh.seek(0)
+        next(fh)  # Skip header again
+
+        for row in tqdm(reader, total=total_lines, desc="Reading k-mers"):
             kmer = row.get('kmer')
             if not kmer:
                 continue
@@ -41,6 +50,7 @@ def filter_kmers(kmer_file):
 
 
 def run_seqkit_locate(kmer, reads_file):
+    """Run seqkit locate for a single k-mer."""
     cmd = ['seqkit', 'locate', '-p', kmer, reads_file]
     proc = subprocess.run(cmd, capture_output=True, text=True)
     if proc.returncode != 0:
@@ -49,6 +59,7 @@ def run_seqkit_locate(kmer, reads_file):
 
 
 def save_locations(kmer, locations, out_dir):
+    """Save k-mer locations to a file."""
     path = os.path.join(out_dir, f"{kmer}.tsv")
     with open(path, 'w') as fh:
         fh.write(locations)
@@ -69,9 +80,26 @@ def main():
 
     os.makedirs(args.outdir, exist_ok=True)
 
-    for kmer in filter_kmers(args.kmers):
-        locs = run_seqkit_locate(kmer, args.reads)
-        save_locations(kmer, locs, args.outdir)
+    # Get list of kmers to process
+    print("Reading k-mers from file...")
+    kmers = list(filter_kmers(args.kmers))
+    total_kmers = len(kmers)
+    print(f"Found {total_kmers} k-mers to process")
+
+    # Process each k-mer with progress bar
+    start_time = time.time()
+    for kmer in tqdm(kmers, desc="Locating k-mers"):
+        try:
+            locs = run_seqkit_locate(kmer, args.reads)
+            if locs.strip():  # Only save if we found matches
+                save_locations(kmer, locs, args.outdir)
+        except Exception as e:
+            print(f"\nError processing k-mer {kmer}: {str(e)}")
+            continue
+
+    end_time = time.time()
+    print(f"\nProcessing completed in {end_time - start_time:.2f} seconds")
+    print(f"Average time per k-mer: {(end_time - start_time) / total_kmers:.2f} seconds")
 
 
 if __name__ == '__main__':
