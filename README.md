@@ -1,7 +1,7 @@
 # kmerlib
 
-This repository contains a simple script for extracting unique k-mers from
-FASTA or FASTQ files using `seqkit`.
+This repository contains scripts for extracting unique k-mers from
+FASTA or FASTQ files and locating them within reads using `seqkit`.
 
 ## Requirements
 
