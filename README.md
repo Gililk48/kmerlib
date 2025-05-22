@@ -24,3 +24,15 @@ reads in which each k-mer appears.
 python extract_kmers.py reads.fastq -k 30 -o kmers.csv
 ```
 
+
+## Locating k-mers in reads
+
+The `locate_kmers.py` script searches a FASTA/FASTQ file for k-mers listed in a CSV file. The CSV should contain `kmer`, `count` and `reads` columns such as the output of `extract_kmers.py`.
+Only k-mers occurring at least twice and found in at least two reads are processed.
+For each qualifying k-mer a TSV file containing the locations is written to the output directory (default `kmer_locations`).
+
+```
+python locate_kmers.py kmers.csv reads.fastq -o locations
+```
+
+Each resulting TSV is named `<kmer>.tsv` and contains the raw output from `seqkit locate` for that k-mer.
